@@ -7,22 +7,100 @@
 </head>
 <body>
 
-    <input type="text" name="name" class="form-control">
-    <button id = "create" class="btn btn-secondary">개설하기</button>
-<input type="text" name = "roomId">
-<button id = "enter">
-    방 입장
-</button>
+<input type="text" name="name" id="createChannelName" class="form-control">
+<button onclick="createChannel()" class="btn btn-secondary">채널 생성</button>
+<div id ="channelList">
+
+</div>
+
+
 <div id = "msgArea"></div>
+<input type="text" id = "msg"><button onclick="sendMsg()">send</button>
+
+<script>
+    var sockJs;
+    var stomp;
+    var roomId;
+    $(document).ready(function(){
+        sockJs = new SockJS("http://localhost:8080/socket");
+        //1. SockJS를 내부에 들고있는 stomp를 내어줌
+        stomp = Stomp.over(sockJs);
+        stomp.connect({},function (){
+            getChannel();
+        })
+
+    });
+    function sendMsg(){
+        stomp.send('/pub/message',{},
+            JSON.stringify({
+                roomId: roomId,
+                writer: "test",
+                message:$("#msg").val()
+            }));
+        $("#msg").val("");
+    }
 
 
-    <input type="text" name = "msg" id = "msg">
-    <button id = "send">
-        방 입장
-    </button>
+    function getChannel(){
+        $("#channelList").empty();
+        $.ajax({
+            type: "GET",
+            url: "http://127.0.0.1:8080/rooms",
+            contentType: "application/json",
+            success: function (responses, textStatus, request) {
+                console.log(responses);
+                for (let response of responses){
+                    $("#channelList").append(
+                        `<a onclick="enter('${response.roomId}')">${response.name}</a><br>`);
+                }
+            }
+        });
+    }
+    function createChannel(){
+        $.ajax({
+            type: "POST",
+            async:false ,
+            url: "http://127.0.0.1:8080/room",
+            data:JSON.stringify({
+                "name" : $("#createChannelName").val()
+            }),
+            contentType: "application/json",
+            success: function (response) {
+                console.log(response);
+            }
+        });
+        getChannel();
+    }
 
 
+    function enter(roomId2) {
+        var username = "test"
+        roomId = roomId2;
+        stomp.subscribe("/sub/channel/" + roomId2, function (chat) {
+            console.log("asdfaadw")
+            var content = JSON.parse(chat.body);
+            var writer = content.writer;
+            var str = '';
 
+            if(writer === username){
+                str = "<div class='col-6'>";
+                str += "<div class='alert alert-secondary'>";
+                str += "<b>" + content.writer + " : " + content.message + "</b>";
+                str += "</div></div>";
+                $("#msgArea").append(str);
+            }
+            else{
+                str = "<div class='col-6'>";
+                str += "<div class='alert alert-warning'>";
+                str += "<b>" + content.writer + " : " + content.message + "</b>";
+                str += "</div></div>";
+                $("#msgArea").append(str);
+            }
+        });
+        stomp.send('/pub/enter',{},JSON.stringify({roomId: roomId2, writer: username}));
+    }
+
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
