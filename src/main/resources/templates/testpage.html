@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+<button onclick="get()">get</button>
+<button onclick="post()">회원가입</button>
+<button onclick="login()">로그인</button>
+<button onclick="write1()">글작성</button>
+<button onclick="put()">글수정</button>
+<button onclick="delete1()">글삭제</button>
+<button onclick="logout()">로그아웃</button>
+<input type="text" id = "token">
+
+<script>
+    function logout(){
+        $.ajax({
+            type: "POST",
+            url: "http://13.124.223.73/api/logout",
+            beforeSend : function(xhr){
+                xhr.setRequestHeader("Authorization", $("#token").val());
+            },
+            contentType: "application/json",
+            data: {},
+            success: function (response) {
+                console.log(response)
+            }
+        });
+    }
+    function login() {
+
+        $.ajax({
+            type: "POST",
+            // url: "http://13.125.151.93/user/login",
+            url: "http://127.0.0.1:8080/user/login",
+            contentType: "application/json",
+            data: JSON.stringify({
+                "username" : "test@test.com",
+                "password" : "12341234a"
+            }),
+            success: function (response, textStatus, request) {
+                console.log(response);
+                console.log(request.getResponseHeader('Connection'));
+            },
+            complete: function (resp) {
+                console.log(resp.getAllResponseHeaders());
+            },
+        });
+    }
+
+    function write1() {
+        $.ajax({
+            type: "POST",
+            url: "http://13.124.223.73/api/store",
+            contentType: "application/json",
+            headers: { 'Authorization': $("#token").val() },
+            data: JSON.stringify({
+                "storeName": "가게이름",
+                "address" : "가게주소",
+                "menu" : "대표  메뉴",
+                "img_url": "null",
+                "stars" : 3,
+                "comment" : "한줄평"
+            }),
+            success: function (response) {
+                console.log(response)
+            }
+        });
+    }
+    function get() {
+
+        $.ajax({
+            type: "GET",
+            // url: "http://13.124.223.73/api/stores",
+            url: "http://127.0.0.1:8080/",
+            contentType: "application/json",
+            data: {},
+            success: function (response) {
+                console.log(response)
+            }
+        });
+    }
+
+    function post() {
+
+        $.ajax({
+            type: "POST",
+            // url: "http://13.124.223.73/api/signup",
+            url: "http://127.0.0.1:8080/user/signup",
+            contentType: "application/json",
+            data: JSON.stringify({
+                "username" : "test@test.com",
+                "password" : "12341234a",
+                "password_confirm" : "12341234a",
+                "nickname" : "nicknametest"
+            }),
+            success: function (response) {
+                console.log(response)
+            }
+        });
+    }
+    function put() {
+        console.log($("#token").val());
+        $.ajax({
+            type: "PUT",
+            url: "http://13.124.223.73/api/store/1",
+            contentType: "application/json",
+            data: JSON.stringify({
+                "storeName": "가게이름 수정",
+                "address" : "가게주소 수정",
+                "menu" : "대표메뉴 수정",
+                "img_url": "null",
+                "stars" : 5,
+                "comment" : "한줄평 수정"
+            }),
+            beforeSend : function(xhr){
+                xhr.setRequestHeader("Authorization", $("#token").val());
+            },
+            success: function (response) {
+                console.log(response)
+            }
+        });
+    }
+    function delete1() {
+
+        $.ajax({
+            type: "DELETE",
+            url: "http://13.124.223.73/api/store/1",
+            contentType: "application/json",
+            beforeSend : function(xhr){
+                xhr.setRequestHeader("Authorization", $("#token").val());
+            },
+            data: JSON.stringify({
+                "username" : "test@fwaef.com",
+                "password" : "12341234a",
+                "passwordCheck" : "12341234a",
+                "nickname" : "dwadafds",
+                "icon_url" : "aasdfasef"
+            }),
+            success: function (response) {
+                console.log(response)
+            }
+        });
+    }
+</script>
+</body>
+</html>
