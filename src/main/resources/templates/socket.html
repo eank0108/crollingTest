@@ -13,7 +13,6 @@
 
 </div>
 
-
 <div id = "msgArea"></div>
 <input type="text" id = "msg"><button onclick="sendMsg()">send</button>
 
@@ -22,7 +21,7 @@
     var stomp;
     var roomId;
     $(document).ready(function(){
-        sockJs = new SockJS("http://localhost:8080/socket");
+        sockJs = new SockJS("http://54.180.154.178/socket");
         //1. SockJS를 내부에 들고있는 stomp를 내어줌
         stomp = Stomp.over(sockJs);
         stomp.connect({},function (){
@@ -45,7 +44,7 @@
         $("#channelList").empty();
         $.ajax({
             type: "GET",
-            url: "http://127.0.0.1:8080/rooms",
+            url: "http://54.180.154.178/rooms",
             contentType: "application/json",
             success: function (responses, textStatus, request) {
                 console.log(responses);
@@ -60,7 +59,7 @@
         $.ajax({
             type: "POST",
             async:false ,
-            url: "http://127.0.0.1:8080/room",
+            url: "http://54.180.154.178/room",
             data:JSON.stringify({
                 "name" : $("#createChannelName").val()
             }),
